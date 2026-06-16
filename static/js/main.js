@@ -1,10 +1,12 @@
 // State Management
 let allReleaseNotes = []; // Stores all release groups parsed from feed
+let filteredReleaseNotes = []; // Stores currently active/filtered release groups
 let selectedUpdates = new Set(); // Stores unique IDs of selected updates
 const LIMIT_CHARACTERS = 280;
 
 // DOM Elements
 const btnRefresh = document.getElementById('btn-refresh');
+const btnExportCSV = document.getElementById('btn-export-csv');
 const searchInput = document.getElementById('search-input');
 const checkboxes = document.querySelectorAll('.chip-checkbox input');
 const feedLoading = document.getElementById('feed-loading');
@@ -40,9 +42,10 @@ if (progressCircle) {
 document.addEventListener('DOMContentLoaded', () => {
   fetchReleaseNotes();
   
-  // Refresh events
+  // Refresh and Export events
   btnRefresh.addEventListener('click', () => fetchReleaseNotes(true));
   btnRetry.addEventListener('click', () => fetchReleaseNotes(true));
+  if (btnExportCSV) btnExportCSV.addEventListener('click', exportToCSV);
   
   // Filter events
   searchInput.addEventListener('input', applyFilters);
@@ -101,6 +104,7 @@ async function fetchReleaseNotes(forceRefresh = false) {
     }
     
     allReleaseNotes = result.data || [];
+    filteredReleaseNotes = allReleaseNotes;
     
     if (result.status === 'warning') {
       showToast(result.message, 'error');
@@ -223,6 +227,13 @@ function renderFeed(filteredNotes = allReleaseNotes) {
               </svg>
               Tweet
             </button>
+            <button class="btn-card-action btn-copy-text-card" data-id="${update.id}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              Copy Text
+            </button>
             <button class="btn-card-action btn-copy-card" data-id="${update.id}">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
@@ -245,6 +256,11 @@ function renderFeed(filteredNotes = allReleaseNotes) {
       card.querySelector('.btn-tweet-card').addEventListener('click', (e) => {
         e.stopPropagation();
         openComposerForSingle(update);
+      });
+      
+      card.querySelector('.btn-copy-text-card').addEventListener('click', (e) => {
+        e.stopPropagation();
+        copyUpdateText(update);
       });
       
       card.querySelector('.btn-copy-card').addEventListener('click', (e) => {
@@ -289,6 +305,7 @@ function applyFilters() {
     };
   });
   
+  filteredReleaseNotes = filtered;
   renderFeed(filtered);
 }
 
@@ -343,14 +360,14 @@ function copyUpdateLink(update) {
       .then(() => showToast('Link copied to clipboard!', 'success'))
       .catch(err => {
         console.error('Clipboard write error', err);
-        fallbackCopyText(directLink);
+        fallbackCopyText(directLink, 'Link copied to clipboard!');
       });
   } else {
-    fallbackCopyText(directLink);
+    fallbackCopyText(directLink, 'Link copied to clipboard!');
   }
 }
 
-function fallbackCopyText(text) {
+function fallbackCopyText(text, successMessage = 'Link copied to clipboard!') {
   const textArea = document.createElement("textarea");
   textArea.value = text;
   textArea.style.position = "fixed";  // Avoid scrolling to bottom
@@ -359,9 +376,9 @@ function fallbackCopyText(text) {
   textArea.select();
   try {
     document.execCommand('copy');
-    showToast('Link copied to clipboard!', 'success');
+    showToast(successMessage, 'success');
   } catch (err) {
-    showToast('Failed to copy link.', 'error');
+    showToast('Failed to copy text.', 'error');
   }
   document.body.removeChild(textArea);
 }
@@ -507,4 +524,68 @@ function stripHtml(html) {
   
   // Replace multiple spacing/newlines with single space
   return text.replace(/\s+/g, ' ').trim();
+}
+
+// Copy update details text to clipboard
+function copyUpdateText(update) {
+  const plainText = stripHtml(update.content);
+  const textToCopy = `BigQuery ${update.type} (${update.date}):\n${plainText}\n\nOfficial Link: ${update.link}`;
+  
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(textToCopy)
+      .then(() => showToast('Update text copied to clipboard!', 'success'))
+      .catch(err => {
+        console.error('Clipboard copy error', err);
+        fallbackCopyText(textToCopy, 'Update text copied to clipboard!');
+      });
+  } else {
+    fallbackCopyText(textToCopy, 'Update text copied to clipboard!');
+  }
+}
+
+// Export currently active/filtered release notes to CSV file
+function exportToCSV() {
+  const activeGroups = filteredReleaseNotes.filter(group => group.updates.length > 0);
+  if (activeGroups.length === 0) {
+    showToast('No release notes available to export.', 'error');
+    return;
+  }
+  
+  const headers = ['Date', 'Category', 'Update Content', 'Source Link'];
+  const rows = [headers];
+  
+  activeGroups.forEach(group => {
+    group.updates.forEach(update => {
+      const cleanContent = stripHtml(update.content);
+      rows.push([
+        group.date,
+        update.type || 'Update',
+        cleanContent,
+        group.link
+      ]);
+    });
+  });
+  
+  // Format CSV cells with proper quoting and escaping
+  const csvContent = rows.map(row => {
+    return row.map(field => {
+      const escaped = String(field).replace(/"/g, '""');
+      return `"${escaped}"`;
+    }).join(',');
+  }).join('\n');
+  
+  // Trigger virtual file download
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  const dateStr = new Date().toISOString().slice(0, 10);
+  
+  link.setAttribute("href", url);
+  link.setAttribute("download", `bigquery_release_notes_${dateStr}.csv`);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  
+  showToast('CSV export downloaded!', 'success');
 }
