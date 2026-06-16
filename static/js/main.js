@@ -7,6 +7,7 @@ const LIMIT_CHARACTERS = 280;
 // DOM Elements
 const btnRefresh = document.getElementById('btn-refresh');
 const btnExportCSV = document.getElementById('btn-export-csv');
+const btnThemeToggle = document.getElementById('btn-theme-toggle');
 const searchInput = document.getElementById('search-input');
 const checkboxes = document.querySelectorAll('.chip-checkbox input');
 const feedLoading = document.getElementById('feed-loading');
@@ -41,6 +42,15 @@ if (progressCircle) {
 // Initial Setup & Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
   fetchReleaseNotes();
+  
+  // Theme Toggle Setup
+  if (btnThemeToggle) {
+    btnThemeToggle.addEventListener('click', toggleTheme);
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') {
+      enableLightTheme();
+    }
+  }
   
   // Refresh and Export events
   btnRefresh.addEventListener('click', () => fetchReleaseNotes(true));
@@ -588,4 +598,36 @@ function exportToCSV() {
   document.body.removeChild(link);
   
   showToast('CSV export downloaded!', 'success');
+}
+
+// Toggle between Dark and Light mode themes
+function toggleTheme() {
+  const isLight = document.body.classList.contains('light-theme');
+  if (isLight) {
+    enableDarkTheme();
+  } else {
+    enableLightTheme();
+  }
+}
+
+// Enable Light theme mode
+function enableLightTheme() {
+  document.body.classList.add('light-theme');
+  localStorage.setItem('theme', 'light');
+  
+  const moonIcon = document.querySelector('.icon-moon');
+  const sunIcon = document.querySelector('.icon-sun');
+  if (moonIcon) moonIcon.classList.remove('hidden');
+  if (sunIcon) sunIcon.classList.add('hidden');
+}
+
+// Enable Dark theme mode
+function enableDarkTheme() {
+  document.body.classList.remove('light-theme');
+  localStorage.setItem('theme', 'dark');
+  
+  const moonIcon = document.querySelector('.icon-moon');
+  const sunIcon = document.querySelector('.icon-sun');
+  if (moonIcon) moonIcon.classList.add('hidden');
+  if (sunIcon) sunIcon.classList.remove('hidden');
 }

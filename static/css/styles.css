@@ -53,6 +53,7 @@
   --radius-sm: 8px;
   --radius-md: 14px;
   --radius-lg: 20px;
+  --bg-glow-opacity: 0.15;
 }
 
 /* Reset & Global */
@@ -79,7 +80,7 @@ body {
   border-radius: 50%;
   filter: blur(120px);
   z-index: -1;
-  opacity: 0.15;
+  opacity: var(--bg-glow-opacity);
   pointer-events: none;
 }
 .bg-glow-1 {
@@ -931,3 +932,127 @@ h1 {
     width: 95%;
   }
 }
+
+/* Light Theme Overrides */
+body.light-theme {
+  --bg-primary: #f1f5f9;
+  --bg-secondary: rgba(255, 255, 255, 0.7);
+  --bg-glass: rgba(255, 255, 255, 0.75);
+  --border-color: rgba(15, 23, 42, 0.08);
+  --border-glow: rgba(66, 133, 244, 0.3);
+  
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  
+  --bg-glow-opacity: 0.08;
+  
+  /* Adjusted tag colors for light theme readability */
+  --tag-feature-bg: rgba(52, 168, 83, 0.08);
+  --tag-feature-text: #15803d;
+  --tag-feature-border: rgba(52, 168, 83, 0.2);
+  
+  --tag-change-bg: rgba(66, 133, 244, 0.08);
+  --tag-change-text: #1d4ed8;
+  --tag-change-border: rgba(66, 133, 244, 0.2);
+  
+  --tag-issue-bg: rgba(234, 67, 53, 0.08);
+  --tag-issue-text: #b91c1c;
+  --tag-issue-border: rgba(234, 67, 53, 0.2);
+  
+  --tag-deprecation-bg: rgba(251, 188, 5, 0.08);
+  --tag-deprecation-text: #a16207;
+  --tag-deprecation-border: rgba(251, 188, 5, 0.2);
+  
+  --tag-update-bg: rgba(100, 116, 139, 0.08);
+  --tag-update-text: #334155;
+  --tag-update-border: rgba(100, 116, 139, 0.2);
+}
+
+/* Specific elements adjustments in light theme */
+body.light-theme h1 {
+  background: linear-gradient(135deg, #0f172a 30%, #334155 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+body.light-theme .date-header {
+  color: #1e293b;
+}
+
+body.light-theme .search-box input {
+  background: rgba(255, 255, 255, 0.95);
+  color: #0f172a;
+}
+
+body.light-theme .card-html-content code {
+  background: rgba(15, 23, 42, 0.05);
+  color: #be123c;
+}
+
+/* Modal styling in light theme */
+body.light-theme .modal-container {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.1);
+}
+
+body.light-theme .modal-header h2 {
+  color: #0f172a;
+}
+
+body.light-theme .modal-header {
+  border-bottom-color: rgba(15, 23, 42, 0.08);
+}
+
+body.light-theme #tweet-textarea {
+  color: #0f172a;
+}
+
+body.light-theme .username-details .display-name {
+  color: #0f172a;
+}
+
+body.light-theme .modal-footer {
+  border-top-color: rgba(15, 23, 42, 0.08);
+}
+
+body.light-theme .btn-tweet {
+  background: #0f1419;
+  color: #ffffff;
+}
+
+body.light-theme .btn-tweet:hover {
+  background: #272c30;
+}
+
+body.light-theme .btn-close {
+  color: #64748b;
+}
+
+body.light-theme .btn-close:hover {
+  color: #0f172a;
+}
+
+body.light-theme .toast {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #0f172a;
+}
+
+body.light-theme .checkmark {
+  border-color: #94a3b8;
+}
+
+body.light-theme .custom-checkbox:hover input ~ .checkmark {
+  border-color: var(--color-primary);
+}
+
+body.light-theme .selection-bar {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+body.light-theme .selection-text {
+  color: #0f172a;
+}
+
