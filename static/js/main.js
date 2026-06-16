@@ -22,6 +22,7 @@ const selectionBar = document.getElementById('selection-bar');
 const selectedCount = document.getElementById('selected-count');
 const btnClearSelection = document.getElementById('btn-clear-selection');
 const btnTweetSelected = document.getElementById('btn-tweet-selected');
+const btnBackToTop = document.getElementById('btn-back-to-top');
 
 // Composer Modal Elements
 const composerModal = document.getElementById('composer-modal');
@@ -72,6 +73,42 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   tweetTextarea.addEventListener('input', updateCharCounter);
   btnPublishTweet.addEventListener('click', publishTweet);
+  
+  // Scroll event for Back to Top visibility
+  window.addEventListener('scroll', () => {
+    if (btnBackToTop) {
+      if (window.scrollY > 300) {
+        btnBackToTop.classList.add('visible');
+      } else {
+        btnBackToTop.classList.remove('visible');
+      }
+    }
+  });
+  
+  // Scroll smoothly to top
+  if (btnBackToTop) {
+    btnBackToTop.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+  
+  // Global keyboard shortcuts (a11y)
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      // 1. Close modal if active
+      if (composerModal && composerModal.classList.contains('active')) {
+        hideModal();
+      }
+      // 2. Clear search input if focused and contains text
+      if (document.activeElement === searchInput) {
+        if (searchInput.value) {
+          searchInput.value = '';
+          applyFilters();
+          searchInput.blur();
+        }
+      }
+    }
+  });
 });
 
 // Toast System

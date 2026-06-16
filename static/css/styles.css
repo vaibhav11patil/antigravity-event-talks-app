@@ -433,6 +433,14 @@ h1 {
   color: #e2e8f0;
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 8px;
+  
+  /* Sticky header configuration */
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: var(--bg-primary);
+  padding-top: 12px;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 .date-header svg {
   color: var(--color-primary);
@@ -1054,5 +1062,57 @@ body.light-theme .selection-bar {
 
 body.light-theme .selection-text {
   color: #0f172a;
+}
+
+/* Accessibility: Custom outlines for keyboard focus navigation */
+:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+input:focus, button:focus, textarea:focus, select:focus {
+  outline: none;
+}
+
+/* Back to Top Button Styling */
+.back-to-top {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 90;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-md);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+  border: 1px solid var(--border-color);
+}
+
+.back-to-top.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.back-to-top svg {
+  width: 22px;
+  height: 22px;
+}
+
+body.light-theme .back-to-top {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #0f172a;
+}
+
+body.light-theme .back-to-top:hover {
+  background: #e2e8f0;
 }
 
