@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BigQuery Release Notes Explorer</title>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Stay up to date with Google Cloud BigQuery release notes. Search, filter, select, and compose tweets directly from the updates.">
+  <meta name="keywords" content="BigQuery, Google Cloud, Release Notes, Twitter Share, Developer Tool">
+  <meta name="author" content="BigQuery Release Explorer">
+  <meta property="og:title" content="BigQuery Release Notes Explorer">
+  <meta property="og:description" content="Explore and search BigQuery release notes, select updates and tweet them easily.">
+  <meta property="og:type" content="website">
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Custom Styling -->
+  <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+  <!-- Background Glows -->
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+  <div class="bg-glow bg-glow-3"></div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-logo-section">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="url(#grad1)"/>
+            <path d="M2 17L12 22L22 17M2 12L12 17L22 12" stroke="url(#grad2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <defs>
+              <linearGradient id="grad1" x1="2" y1="2" x2="22" y2="12" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#4285F4"/>
+                <stop offset="50%" stop-color="#34A853"/>
+                <stop offset="100%" stop-color="#FBBC05"/>
+              </linearGradient>
+              <linearGradient id="grad2" x1="2" y1="12" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#EA4335"/>
+                <stop offset="100%" stop-color="#4285F4"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div>
+          <h1 id="app-title">BigQuery Release Explorer</h1>
+          <p class="subtitle">Track and share Google Cloud BigQuery updates and features</p>
+        </div>
+      </div>
+      
+      <div class="header-actions">
+        <button id="btn-refresh" class="btn btn-primary" aria-label="Refresh release notes">
+          <span class="btn-icon">
+            <svg class="spinner-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l.73-.73" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="btn-text">Refresh Feed</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Search and Filter Panel -->
+    <section class="filter-panel" aria-label="Search and Filter">
+      <div class="search-box">
+        <span class="search-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </span>
+        <input type="text" id="search-input" placeholder="Search keywords (e.g. Gemini, SQL, Partition)..." aria-label="Search release notes">
+      </div>
+      
+      <div class="filter-options">
+        <span class="filter-label">Filter by type:</span>
+        <div class="checkbox-group">
+          <label class="chip-checkbox">
+            <input type="checkbox" value="Feature" checked>
+            <span class="chip-label chip-feature">Feature</span>
+          </label>
+          <label class="chip-checkbox">
+            <input type="checkbox" value="Change" checked>
+            <span class="chip-label chip-change">Change</span>
+          </label>
+          <label class="chip-checkbox">
+            <input type="checkbox" value="Issue" checked>
+            <span class="chip-label chip-issue">Issue</span>
+          </label>
+          <label class="chip-checkbox">
+            <input type="checkbox" value="Deprecation" checked>
+            <span class="chip-label chip-deprecation">Deprecation</span>
+          </label>
+          <label class="chip-checkbox">
+            <input type="checkbox" value="Update" checked>
+            <span class="chip-label chip-update">Other Updates</span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- Feed Container -->
+    <main class="feed-section">
+      <!-- Loading State -->
+      <div id="feed-loading" class="loading-state hidden">
+        <div class="spinner-large"></div>
+        <p>Fetching latest release notes from Google Cloud...</p>
+      </div>
+
+      <!-- Error State -->
+      <div id="feed-error" class="error-state hidden">
+        <div class="error-icon">⚠️</div>
+        <h3>Failed to Load Feed</h3>
+        <p id="error-message">Something went wrong while retrieving updates.</p>
+        <button id="btn-retry" class="btn btn-secondary">Try Again</button>
+      </div>
+
+      <!-- Empty State -->
+      <div id="feed-empty" class="empty-state hidden">
+        <div class="empty-icon">🔍</div>
+        <h3>No Updates Found</h3>
+        <p>Try adjusting your search terms or filter selections.</p>
+      </div>
+
+      <!-- Actual Feed List -->
+      <div id="feed-list" class="feed-list">
+        <!-- Rendered dynamically in JS -->
+      </div>
+    </main>
+  </div>
+
+  <!-- Floating Selection Bar -->
+  <div id="selection-bar" class="selection-bar hidden">
+    <div class="selection-info">
+      <span class="selection-count" id="selected-count">0</span>
+      <span class="selection-text">updates selected</span>
+    </div>
+    <div class="selection-actions">
+      <button id="btn-clear-selection" class="btn btn-text">Clear All</button>
+      <button id="btn-tweet-selected" class="btn btn-accent">
+        <span class="btn-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+          </svg>
+        </span>
+        Compose Tweet
+      </button>
+    </div>
+  </div>
+
+  <!-- Twitter / X Composer Modal -->
+  <div id="composer-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h2 id="modal-title">Compose Post</h2>
+        <button id="btn-close-modal" class="btn-close" aria-label="Close modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="composer-profile">
+          <div class="avatar">BQ</div>
+          <div class="username-details">
+            <span class="display-name">Cloud Release Agent</span>
+            <span class="handle">@BigQueryRelease</span>
+          </div>
+        </div>
+        <textarea id="tweet-textarea" placeholder="What's happening in BigQuery?" maxlength="1000"></textarea>
+      </div>
+      <div class="modal-footer">
+        <div class="char-counter-container">
+          <svg class="progress-ring" width="30" height="30">
+            <circle class="progress-ring__background" stroke="#2f3336" stroke-width="2.5" fill="transparent" r="12" cx="15" cy="15"/>
+            <circle class="progress-ring__circle" stroke="#1d9bf0" stroke-width="2.5" fill="transparent" r="12" cx="15" cy="15"/>
+          </svg>
+          <span id="char-counter" class="char-counter">280</span>
+        </div>
+        <button id="btn-publish-tweet" class="btn btn-tweet">Post to X</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Script Import -->
+  <script src="/static/js/main.js"></script>
+</body>
+</html>
